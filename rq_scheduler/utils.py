@@ -1,16 +1,14 @@
 import calendar
 import croniter
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone, UTC
 import logging
-
-from rq.utils import ColorizingStreamHandler
 
 
 # from_unix from times.from_unix()
 def from_unix(string):
     """Convert a unix timestamp into a utc datetime"""
-    return datetime.utcfromtimestamp(float(string))
+    return datetime.fromtimestamp(float(string), UTC).replace(second=0, microsecond=0)
 
 
 # to_unix from times.to_unix()
@@ -32,7 +30,7 @@ def setup_loghandlers(level='INFO'):
         logger.setLevel(level)
         formatter = logging.Formatter(fmt='%(asctime)s %(message)s',
                                       datefmt='%H:%M:%S')
-        handler = ColorizingStreamHandler()
+        handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 

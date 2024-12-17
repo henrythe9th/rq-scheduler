@@ -1,6 +1,5 @@
 import unittest
 from redis import StrictRedis
-from rq import push_connection, pop_connection
 
 
 def find_empty_redis_database():
@@ -21,18 +20,12 @@ class RQTestCase(unittest.TestCase):
     It sets up the Redis connection (available via self.testconn), turns off
     logging to the terminal and flushes the Redis database before and after
     running each test.
-
-    Also offers assertQueueContains(queue, that_func) assertion method.
     """
 
     @classmethod
     def setUpClass(cls):
         # Set up connection to Redis
-        testconn = find_empty_redis_database()
-        push_connection(testconn)
-
-        # Store the connection (for sanity checking)
-        cls.testconn = testconn
+        cls.testconn = find_empty_redis_database()
 
     def setUp(self):
         # Flush beforewards (we like our hygiene)
@@ -61,14 +54,6 @@ class RQTestCase(unittest.TestCase):
     if not hasattr(unittest.TestCase, 'assertIsInstance'):
         def assertIsInstance(self, obj, cls, msg=None):
             self.assertTrue(isinstance(obj, cls), msg=msg)
-
-    @classmethod
-    def tearDownClass(cls):
-
-        # Pop the connection to Redis
-        testconn = pop_connection()
-        assert testconn == cls.testconn, 'Wow, something really nasty ' \
-                'happened to the Redis connection stack. Check your setup.'
 
 # for python < 2.7, which doesn't have setUpClass
 if not hasattr(unittest.TestCase, 'setUpClass'):
